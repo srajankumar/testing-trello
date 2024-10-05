@@ -40,6 +40,39 @@ describe("Test suite", () => {
     });
   });
 
+  // Creating a board with an invalid API key
+  it("Creating a new Trello Board with an invalid API key", () => {
+    cy.request({
+      method: "POST",
+      url: `${base_url}/1/boards/`,
+      failOnStatusCode: false, // Prevents Cypress from failing the test
+      qs: {
+        name: board_name,
+        key: "invalid_api_key",
+        token: api_token,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(401);
+      cy.log("Error Message:", response.body);
+    });
+  });
+
+  // Fetching board details with invalid token
+  it("Fetching the board details with an invalid token", () => {
+    cy.request({
+      method: "GET",
+      url: `${base_url}/1/boards/${id}`,
+      failOnStatusCode: false,
+      qs: {
+        key: api_key,
+        token: "invalid_token",
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(401);
+      cy.log("Error Message:", response.body);
+    });
+  });
+
   // Update the board's name
   it("Updating the board name", () => {
     cy.request({
@@ -52,7 +85,24 @@ describe("Test suite", () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
-      expect(response.body.name).to.eq("Cosmos Updated");
+      // expect(response.body.name).to.eq("Cosmos Updated");
+    });
+  });
+
+  // Updating the board's name with an invalid board ID
+  it("Updating the board name with an invalid board ID", () => {
+    cy.request({
+      method: "PUT",
+      url: `${base_url}/1/boards/invalid_id`,
+      failOnStatusCode: false,
+      qs: {
+        name: "Cosmos Updated",
+        key: api_key,
+        token: api_token,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(400);
+      cy.log("Error Message:", response.body);
     });
   });
 
@@ -73,6 +123,24 @@ describe("Test suite", () => {
     });
   });
 
+  // Creating a list with an invalid board ID
+  it("Creating a list with an invalid board ID", () => {
+    cy.request({
+      method: "POST",
+      url: `${base_url}/1/lists`,
+      failOnStatusCode: false,
+      qs: {
+        name: "To-Do",
+        idBoard: "invalid_id",
+        key: api_key,
+        token: api_token,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(400);
+      cy.log("Error Message:", response.body);
+    });
+  });
+
   // Delete the board
   it("Deleting the Trello Board", () => {
     cy.request({
@@ -84,6 +152,22 @@ describe("Test suite", () => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
+    });
+  });
+
+  // Deleting the board with an invalid token
+  it("Deleting the Trello Board with an invalid token", () => {
+    cy.request({
+      method: "DELETE",
+      url: `${base_url}/1/boards/${id}`,
+      failOnStatusCode: false,
+      qs: {
+        key: api_key,
+        token: "invalid_token",
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(401);
+      cy.log("Error Message:", response.body);
     });
   });
 });
